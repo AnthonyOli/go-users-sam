@@ -33,7 +33,7 @@ Resources:
     Metadata:
       BuildMethod: go1.x
     Properties:
-      CodeUri: services/users/hello-world/
+      CodeUri: cmd/hello-world/
       Handler: bootstrap
       Runtime: provided.al2023
       Architectures:
@@ -52,7 +52,7 @@ Resources:
     Metadata:
       BuildMethod: go1.x
     Properties:
-      CodeUri: services/users/get-user/
+      CodeUri: cmd/get-user/
       Handler: bootstrap
       Runtime: provided.al2023
       Architectures:

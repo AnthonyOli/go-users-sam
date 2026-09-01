@@ -1,25 +1,39 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"encoding/json"
+	"go-serverless/helpers"
+	"go-serverless/internal/db/repositories"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	var greeting string
-	sourceIP := request.RequestContext.Identity.SourceIP
+func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	pool, err := helpers.NewPool(ctx)
+	if err != nil {
+		return events.APIGatewayProxyResponse{StatusCode: 500}, err
+	}
+	defer pool.Close()
 
-	if sourceIP == "" {
-		greeting = "Hello, world from GetUser!\n"
-	} else {
-		greeting = fmt.Sprintf("Hello from GetUser, %s!\n", sourceIP)
+	queryParams := request.PathParameters["id"]
+
+	userRepo := repositories.NewUserRepository(pool)
+
+	user, err := userRepo.GetById(ctx, queryParams)
+	if err != nil {
+		return events.APIGatewayProxyResponse{StatusCode: 500}, err
+	}
+
+	body, err := json.Marshal(user)
+	if err != nil {
+		return events.APIGatewayProxyResponse{StatusCode: 500}, err
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       greeting,
 		StatusCode: 200,
+		Body:       string(body),
 	}, nil
 }
 
