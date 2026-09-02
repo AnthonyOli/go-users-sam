@@ -19,16 +19,16 @@ This project demonstrates a clean, scalable architecture for building serverless
 
 ```
 .
-├── cmd/                      # Entry points
+├── cmd/                     # Entry points
 │   ├── get-user/            # Lambda handler for getting users
-│   └── hello-world/         # Sample Lambda function
+│   ├── update-user/         # Lambda handler for users update
 ├── internal/
 │   ├── base/                # Generic base repository and service
 │   ├── db/
 │   │   ├── entities/        # Data models (User, etc.)
 │   │   └── repositories/    # Repository implementations
 │   └── services/            # Business logic layer
-├── helpers/                 # Utility functions (DB connection pooling, etc.)
+├── helpers/                 # Utility functions (DB connection pooling, hashers, validators, etc.)
 └── template.yaml            # SAM template for infrastructure as code
 ```
 
@@ -60,6 +60,20 @@ type User struct {
 Retrieve a user by their ID.
 
 **Response**: User object as JSON
+
+### PUT /users/{id}
+Update a user by their ID.
+
+**Body**: 
+```json
+{
+  "name": string,
+  "email": string,
+  "phone": string,
+  "is_active": boolean
+}
+```
+**Response**: Updated user object as JSON
 
 ## Prerequisites
 
