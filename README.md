@@ -62,6 +62,11 @@ Retrieve a user by their ID.
 
 **Response**: User object as JSON
 
+### GET /users
+Retrieve a paginated list of users.
+
+**Response**: Pagination object with: data, page, page_size and total
+
 ### PUT /users/{id}
 Update a user by their ID.
 
