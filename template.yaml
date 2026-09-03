@@ -51,6 +51,29 @@ Resources:
           DB_PASSWORD: !Ref DBPassword
           DB_NAME: !Ref DBName
           DB_PORT: !Ref DBPort
+    ListUsersFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: go1.x
+    Properties:
+      CodeUri: cmd/list-users/
+      Handler: bootstrap
+      Runtime: provided.al2023
+      Architectures:
+        - x86_64
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: GET
+      Environment:
+        Variables:
+          DB_HOST: !Ref DBHost
+          DB_USER: !Ref DBUser
+          DB_PASSWORD: !Ref DBPassword
+          DB_NAME: !Ref DBName
+          DB_PORT: !Ref DBPort
   UpdateUserFunction:
     Type: AWS::Serverless::Function
     Metadata:

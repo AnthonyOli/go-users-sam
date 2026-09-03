@@ -22,6 +22,64 @@ type SQLBaseRepository[T any] struct {
 	Table string
 }
 
+type PaginatedResponse[T any] struct {
+	Total    int  `json:"total"`
+	Page     int  `json:"page"`
+	PageSize int  `json:"page_size"`
+	Data     []*T `json:"data"`
+}
+
+func (r *SQLBaseRepository[T]) List(ctx context.Context, pageSize *int, page *int) (*PaginatedResponse[T], error) {
+	var response PaginatedResponse[T]
+
+	response.PageSize = 10
+
+	if pageSize != nil {
+		response.PageSize = *pageSize
+	}
+
+	response.Page = 1
+	if page != nil {
+		response.Page = *page
+	}
+	offset := (response.Page - 1) * response.PageSize
+
+	rows, err := r.Pool.Query(ctx, "SELECT * FROM "+r.Table+" LIMIT $1 OFFSET $2 ", response.PageSize, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	entities, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByName[T])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	count, err := r.Count(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	response.Total = count
+	response.Data = entities
+
+	return &response, nil
+}
+
+func (r *SQLBaseRepository[T]) Count(ctx context.Context) (int, error) {
+	var total int
+
+	err := r.Pool.QueryRow(ctx, "SELECT COUNT(*) FROM "+r.Table).Scan(&total)
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
 // método AUXILIAR, privado ao pacote (minúsculo), usado pelos métodos públicos abaixo
 func (r *SQLBaseRepository[T]) exec(ctx context.Context, query string, args ...interface{}) error {
 	_, err := r.Pool.Exec(ctx, query, args...)
