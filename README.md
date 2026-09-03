@@ -22,6 +22,7 @@ This project demonstrates a clean, scalable architecture for building serverless
 ├── cmd/                     # Entry points
 │   ├── get-user/            # Lambda handler for getting users
 │   ├── update-user/         # Lambda handler for users update
+│   ├── list-users/          # Lambda handler for listing users
 ├── internal/
 │   ├── base/                # Generic base repository and service
 │   ├── db/
